@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MosesArt & Vibe</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0a0705;
+    --bone: #e8dcc8;
+    --rust: #8b3a1a;
+    --gold: #c9952a;
+    --smoke: #2a2018;
+    --ash: #4a3f35;
+    --blood: #6b1a1a;
+    --chrome: #b8b0a0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: 'Special Elite', cursive;
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='4' fill='%23c9952a' /%3E%3C/svg%3E") 10 10, crosshair;
+  }
+
+  /* ======= NOISE TEXTURE OVERLAY ======= */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* ======= LOADING SCREEN ======= */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+
+  #loader.gone { opacity: 0; visibility: hidden; }
+
+  .loader-skull {
+    width: 120px;
+    height: 120px;
+    animation: pulse-skull 1.2s ease-in-out infinite;
+  }
+
+  .loader-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-top: 1.5rem;
+    text-align: center;
+    animation: flicker 2s ease-in-out infinite;
+  }
+
+  .loader-sub {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.85rem;
+    color: var(--chrome);
+    letter-spacing: 0.3em;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .loader-bar-wrap {
+    margin-top: 2rem;
+    width: 220px;
+    height: 3px;
+    background: var(--ash);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .loader-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blood), var(--gold));
+    animation: load-fill 2.4s ease forwards;
+  }
+
+  @keyframes load-fill {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+
+  @keyframes pulse-skull {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px #c9952a66); }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 22px #c9952aaa); }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    47% { opacity: 1; }
+    48% { opacity: 0.6; }
+    49% { opacity: 1; }
+    90% { opacity: 1; }
+    91% { opacity: 0.4; }
+    92% { opacity: 1; }
+  }
+
+  /* ======= MAIN SITE ======= */
+  #site { opacity: 0; transition: opacity 1s ease; }
+  #site.visible { opacity: 1; }
+
+  /* ======= NAVIGATION ======= */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,7,5,0.97), transparent);
+  }
+
+  .nav-logo {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+
+  .nav-links a {
+    color: var(--chrome);
+    text-decoration: none;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* ======= HERO SECTION ======= */
+  #hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    padding: 7rem 2rem 5rem;
+    overflow: hidden;
+  }
+
+  .hero-bg-flames {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 50% 100%, #3d1505 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, #1a0800 0%, transparent 50%),
+      radial-gradient(ellipse 40% 40% at 80% 80%, #1a0800 0%, transparent 50%),
+      var(--ink);
+    z-index: 0;
+  }
+
+  .hero-chain-left, .hero-chain-right {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 60px;
+    opacity: 0.08;
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0px, transparent 12px,
+      var(--chrome) 12px, var(--chrome) 14px,
+      transparent 14px, transparent 20px,
+      var(--chrome) 20px, var(--chrome) 22px
+    );
+    z-index: 0;
+  }
+  .hero-chain-left { left: 0; }
+  .hero-chain-right { right: 0; }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--rust);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+
+  .hero-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 900;
+    color: var(--bone);
+    line-height: 0.9;
+    text-shadow: 0 0 60px rgba(201,149,42,0.3);
+    animation: fadeUp 1s ease 0.5s both;
+  }
+
+  .hero-name span {
+    display: block;
+    color: var(--gold);
+    font-size: 0.55em;
+    letter-spacing: 0.3em;
+    margin-top: 0.3em;
+    font-style: italic;
+  }
+
+  .hero-desc {
+    margin-top: 2rem;
+    max-width: 480px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--chrome);
+    line-height: 1.7;
+    animation: fadeUp 1s ease 0.8s both;
+  }
+
+  .hero-divider {
+    width: 120px;
+    height: 2px;
+    margin: 2rem auto;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    animation: fadeUp 1s ease 1s both;
+  }
+
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--ash);
+    text-transform: uppercase;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ======= SECTION TRANSITIONS (the icon portals) ======= */
+  .portal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .portal-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .portal-line {
+    flex: 1;
+    min-width: 60px;
+    max-width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--ash), transparent);
+  }
+
+  .portal-icon {
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--ash);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    background: var(--smoke);
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: var(--chrome);
+  }
+
+  .portal-icon:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(201,149,42,0.4);
+  }
+
+  .portal-icon-label {
+    position: absolute;
+    bottom: -1.5rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ash);
+    white-space: nowrap;
+    pointer-events: none;
+    transition: color 0.3s;
+  }
+
+  .portal-icon:hover .portal-icon-label { color: var(--gold); }
+
+  /* ======= FULL SECTIONS ======= */
+  .full-section {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem 2rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    color: var(--bone);
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1rem auto 0;
+  }
+
+  /* ======= PAINTINGS SECTION ======= */
+  #obrazy {
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 50%, #1a0f05 0%, transparent 70%),
+      var(--ink);
+  }
+
+  .canvas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .canvas-frame {
+    aspect-ratio: 4/5;
+    background: var(--smoke);
+    border: 2px solid var(--ash);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s ease;
+  }
+
+  .canvas-frame::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(201,149,42,0.15);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .canvas-frame:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 40px rgba(201,149,42,0.2), inset 0 0 40px rgba(201,149,42,0.05);
+    transform: translateY(-4px);
+  }
+
+  .canvas-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .canvas-placeholder .big-icon { font-size: 3rem; opacity: 0.3; }
+  .canvas-placeholder .slot-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+  .canvas-placeholder .slot-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--chrome);
+  }
+
+  .canvas-upload-hint {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 0.5rem;
+    background: rgba(201,149,42,0.1);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+    transform: translateY(100%);
+    transition: transform 0.3s;
+  }
+
+  .canvas-frame:hover .canvas-upload-hint { transform: translateY(0); }
+
+  /* ======= TATTOO SECTION ======= */
+  #tatuaze {
+    background:
+      radial-gradient(ellipse 70% 50% at 70% 50%, #1a0505 0%, transparent 70%),
+      var(--ink);
+  }
+
+  .tattoo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .tattoo-card {
+    aspect-ratio: 1;
+    background: var(--smoke);
+    border: 1px solid var(--ash);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+
+  .tattoo-card:hover {
+    border-color: var(--blood);
+    box-shadow: 0 0 30px rgba(107,26,26,0.4);
+    transform: scale(1.03);
+  }
+
+  .tattoo-card-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .machine-icon { font-size: 2.5rem; opacity: 0.25; }
+  .tattoo-slot-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+  .tattoo-slot-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--chrome);
+  }
+
+  .tattoo-corner {
+    position: absolute;
+    top: 0; right: 0;
+    width: 20px; height: 20px;
+    background: var(--blood);
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    opacity: 0.6;
+  }
+
+  /* ======= MUSIC SECTION ======= */
+  #muzyka {
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 30%, #050a1a 0%, transparent 70%),
+      var(--ink);
+  }
+
+  .music-container {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .vinyl-wrap {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    animation: spin-slow 12s linear infinite;
+    animation-play-state: paused;
+  }
+
+  .vinyl-wrap.playing { animation-play-state: running; }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .vinyl {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 50%, var(--smoke) 0%, var(--smoke) 18%, transparent 18.5%),
+      radial-gradient(circle at 50% 50%, var(--ash) 19%, var(--ink) 20%, var(--smoke) 22%, var(--ink) 24%,
+        var(--smoke) 26%, var(--ink) 28%, var(--smoke) 30%, var(--ink) 32%, var(--smoke) 34%, var(--ink) 36%,
+        var(--smoke) 38%, var(--ink) 40%, var(--smoke) 42%, var(--ink) 44%, var(--smoke) 46%, var(--ink) 48%,
+        var(--smoke) 49%, var(--ink) 50%);
+    border: 2px solid var(--ash);
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    position: relative;
+  }
+
+  .vinyl-label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36%;
+    height: 36%;
+    border-radius: 50%;
+    background: var(--blood);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.35rem;
+    letter-spacing: 0.05em;
+    color: var(--bone);
+    text-align: center;
+    padding: 0.3rem;
+  }
+
+  .player-embed {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--ash);
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  .player-embed iframe {
+    width: 100%;
+    display: block;
+    border: none;
+  }
+
+  .music-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--chrome);
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.8;
+    opacity: 0.7;
+  }
+
+  /* ======= SKETCHBOOK SECTION ======= */
+  #szkice {
+    background:
+      radial-gradient(ellipse 50% 60% at 80% 20%, #100a00 0%, transparent 60%),
+      var(--ink);
+    min-height: 100vh;
+    padding: 8rem 2rem 6rem;
+  }
+
+  .notebook-container {
+    width: 100%;
+    max-width: 800px;
+    background: #0e0b06;
+    border: 1px solid var(--ash);
+    padding: 2rem;
+    position: relative;
+  }
+
+  .notebook-container::before {
+    content: '';
+    position: absolute;
+    left: 3rem;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(107,26,26,0.3);
+  }
+
+  .notebook-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--ash);
+  }
+
+  .nb-tab {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ash);
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-bottom: none;
+    transition: all 0.3s;
+    background: none;
+    font-family: 'Special Elite', cursive;
+  }
+
+  .nb-tab.active {
+    color: var(--gold);
+    border-color: var(--ash);
+    background: var(--smoke);
+    margin-bottom: -1px;
+  }
+
+  .nb-tab:hover:not(.active) { color: var(--chrome); }
+
+  .nb-panel { display: none; }
+  .nb-panel.active { display: block; }
+
+  .nb-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nb-line {
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(74,63,53,0.2);
+    padding: 0.7rem 0 0.7rem 3.5rem;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--chrome);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: background 0.2s;
+  }
+
+  .nb-line:hover { background: rgba(201,149,42,0.03); }
+
+  .nb-line-num {
+    font-family: 'Special Elite', cursive;
+    font-style: normal;
+    font-size: 0.6rem;
+    color: var(--blood);
+    margin-right: 1rem;
+    min-width: 1.5rem;
+    opacity: 0.5;
+    margin-top: 0.2rem;
+  }
+
+  .sketch-placeholder {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding-left: 3.5rem;
+  }
+
+  .sketch-box {
+    aspect-ratio: 1;
+    border: 1px dashed var(--ash);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--ash);
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .sketch-box:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 15px rgba(201,149,42,0.1);
+  }
+
+  .sketch-box-label {
+    position: absolute;
+    bottom: 0.3rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: 'Special Elite', cursive;
+    color: var(--ash);
+  }
+
+  .staff-lines {
+    padding-left: 3.5rem;
+    padding-top: 1rem;
+  }
+
+  .staff {
+    position: relative;
+    height: 50px;
+    margin-bottom: 2rem;
+    cursor: pointer;
+  }
+
+  .staff-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: rgba(74,63,53,0.5);
+  }
+
+  .staff-line:nth-child(1) { top: 10px; }
+  .staff-line:nth-child(2) { top: 20px; }
+  .staff-line:nth-child(3) { top: 30px; }
+  .staff-line:nth-child(4) { top: 40px; }
+  .staff-line:nth-child(5) { top: 50px; }
+
+  .staff-note {
+    position: absolute;
+    font-size: 1.4rem;
+    color: var(--gold);
+    animation: note-float 3s ease-in-out infinite;
+  }
+
+  .staff-note:nth-child(6) { left: 10%; top: 5px; animation-delay: 0s; }
+  .staff-note:nth-child(7) { left: 25%; top: 18px; animation-delay: 0.5s; }
+  .staff-note:nth-child(8) { left: 42%; top: 8px; animation-delay: 1s; }
+  .staff-note:nth-child(9) { left: 60%; top: 22px; animation-delay: 1.5s; }
+  .staff-note:nth-child(10) { left: 78%; top: 5px; animation-delay: 0.8s; }
+
+  @keyframes note-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    50% { transform: translateY(-5px) rotate(5deg); opacity: 1; }
+  }
+
+  /* ======= FOOTER ======= */
+  footer {
+    padding: 4rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--ash);
+    background: #050302;
+  }
+
+  .footer-logo {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-sub {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    color: var(--ash);
+    text-decoration: none;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ======= SECTION BACKGROUNDS ======= */
+  .section-bg-art {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .section-bg-art svg {
+    position: absolute;
+    opacity: 0.03;
+  }
+
+  .section-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* ======= SCROLL REVEAL ======= */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ======= MOBILE ======= */
+  @media (max-width: 600px) {
+    .nav-links { gap: 0.8rem; }
+    .canvas-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .tattoo-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .sketch-placeholder { grid-template-columns: repeat(2, 1fr); }
+    .notebook-container::before { display: none; }
+    .nb-line { padding-left: 1rem; }
+    .staff-lines { padding-left: 0; }
+    .sketch-placeholder { padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOADER ===== -->
+<div id="loader">
+  <svg class="loader-skull" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="skullGrad" cx="50%" cy="40%">
+        <stop offset="0%" stop-color="#c9952a"/>
+        <stop offset="100%" stop-color="#6b1a1a"/>
+      </radialGradient>
+    </defs>
+    <!-- skull shape -->
+    <ellipse cx="50" cy="42" rx="28" ry="28" fill="url(#skullGrad)" opacity="0.9"/>
+    <!-- jaw -->
+    <rect x="35" y="62" width="30" height="16" rx="4" fill="#8b3a1a"/>
+    <!-- teeth -->
+    <rect x="37" y="70" width="6" height="8" rx="1" fill="#e8dcc8"/>
+    <rect x="46" y="70" width="6" height="8" rx="1" fill="#e8dcc8"/>
+    <rect x="55" y="70" width="6" height="8" rx="1" fill="#e8dcc8"/>
+    <!-- eyes -->
+    <ellipse cx="40" cy="40" rx="8" ry="9" fill="#050302"/>
+    <ellipse cx="60" cy="40" rx="8" ry="9" fill="#050302"/>
+    <!-- nose -->
+    <ellipse cx="50" cy="53" rx="4" ry="3" fill="#050302"/>
+    <!-- brow cracks -->
+    <path d="M32 30 L38 36" stroke="#c9952a" stroke-width="1.5" opacity="0.6"/>
+    <path d="M68 30 L62 36" stroke="#c9952a" stroke-width="1.5" opacity="0.6"/>
+    <!-- flame on top -->
+    <path d="M50 14 C48 8, 44 4, 46 0 C44 5, 50 3, 50 14Z" fill="#c9952a" opacity="0.7"/>
+    <path d="M50 14 C52 8, 56 4, 54 0 C56 5, 50 3, 50 14Z" fill="#8b3a1a" opacity="0.5"/>
+  </svg>
+  <div class="loader-title">MosesArt & Vibe</div>
+  <div class="loader-sub">Paint · Ink · Sound · Soul</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<!-- ===== MAIN SITE ===== -->
+<div id="site">
+
+  <!-- NAV -->
+  <nav>
+    <a href="#hero" class="nav-logo">M◆A&V</a>
+    <ul class="nav-links">
+      <li><a href="#obrazy">Obrazy</a></li>
+      <li><a href="#tatuaze">Tatuaże</a></li>
+      <li><a href="#muzyka">Muzyka</a></li>
+      <li><a href="#szkice">Notatnik</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg-flames"></div>
+    <div class="hero-chain-left"></div>
+    <div class="hero-chain-right"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Paint · Ink · Sound · Soul</div>
+      <h1 class="hero-name">
+        Moses
+        <span>Art &amp; Vibe</span>
+      </h1>
+      <div class="hero-divider"></div>
+      <p class="hero-desc">
+        Człowiek który maluje obrazy, kuje tatuaże i żyje muzyką.<br/>
+        Chopery. Blues. Psychedelia. Led Zeppelin.<br/>
+        Wolność wyryta w skórze, na płótnie, w dźwięku.
+      </p>
+    </div>
+    <div class="hero-scroll-hint">↓ &nbsp; Jedź &nbsp; ↓</div>
+  </section>
+
+  <!-- PORTAL: Hero → Obrazy -->
+  <div class="portal reveal">
+    <div class="portal-inner">
+      <div class="portal-line"></div>
+      <a href="#muzyka" class="portal-icon" title="Idź do Muzyki">
+        🎸
+        <span class="portal-icon-label">Muzyka</span>
+      </a>
+      <div class="portal-line"></div>
+      <a href="#obrazy" class="portal-icon" title="Idź do Obrazów">
+        🎨
+        <span class="portal-icon-label">Obrazy</span>
+      </a>
+      <div class="portal-line"></div>
+      <a href="#tatuaze" class="portal-icon" title="Idź do Tatuaży">
+        🪡
+        <span class="portal-icon-label">Tatuaże</span>
+      </a>
+      <div class="portal-line"></div>
+    </div>
+  </div>
+
+  <!-- ===== OBRAZY ===== -->
+  <section id="obrazy" class="full-section">
+    <div class="section-bg-art">
+      <svg width="500" height="500" style="top:-100px;left:-100px;">
+        <circle cx="250" cy="250" r="200" stroke="#c9952a" stroke-width="1" fill="none"/>
+        <circle cx="250" cy="250" r="160" stroke="#c9952a" stroke-width="0.5" fill="none"/>
+        <circle cx="250" cy="250" r="120" stroke="#8b3a1a" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+    <div class="section-content">
+      <div class="section-label reveal">Galeria</div>
+      <h2 class="section-title reveal">Obrazy</h2>
+      <div class="canvas-grid">
+        <!-- Frame 1 -->
+        <div class="canvas-frame reveal">
+          <div class="canvas-placeholder">
+            <div class="big-icon">🖼️</div>
+            <div class="slot-label">Obraz I</div>
+            <div class="slot-title">Miejsce na Twoje dzieło</div>
+          </div>
+          <div class="canvas-upload-hint">[ dodaj obraz ]</div>
+        </div>
+        <!-- Frame 2 -->
+        <div class="canvas-frame reveal" style="transition-delay:0.1s">
+          <div class="canvas-placeholder">
+            <div class="big-icon">🖼️</div>
+            <div class="slot-label">Obraz II</div>
+            <div class="slot-title">Miejsce na Twoje dzieło</div>
+          </div>
+          <div class="canvas-upload-hint">[ dodaj obraz ]</div>
+        </div>
+        <!-- Frame 3 -->
+        <div class="canvas-frame reveal" style="transition-delay:0.2s">
+          <div class="canvas-placeholder">
+            <div class="big-icon">🖼️</div>
+            <div class="slot-label">Obraz III</div>
+            <div class="slot-title">Miejsce na Twoje dzieło</div>
+          </div>
+          <div class="canvas-upload-hint">[ dodaj obraz ]</div>
+        </div>
+        <!-- Frame 4 -->
+        <div class="canvas-frame reveal" style="transition-delay:0.3s">
+          <div class="canvas-placeholder">
+            <div class="big-icon">🖼️</div>
+            <div class="slot-label">Obraz IV</div>
+            <div class="slot-title">Miejsce na Twoje dzieło</div>
+          </div>
+          <div class="canvas-upload-hint">[ dodaj obraz ]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTAL: Obrazy → Tatuaże -->
+  <div class="portal reveal">
+    <div class="portal-inner">
+      <div class="portal-line"></div>
+      <a href="#obrazy" class="portal-icon" title="Wróć do Obrazów">🎨<span class="portal-icon-label">Obrazy</span></a>
+      <div class="portal-line"></div>
+      <span style="font-family:'Special Elite';font-size:0.6rem;letter-spacing:0.3em;color:#4a3f35;text-transform:uppercase;">↕</span>
+      <div class="portal-line"></div>
+      <a href="#tatuaze" class="portal-icon" title="Idź do Tatuaży">🪡<span class="portal-icon-label">Tatuaże</span></a>
+      <div class="portal-line"></div>
+    </div>
+  </div>
+
+  <!-- ===== TATUAŻE ===== -->
+  <section id="tatuaze" class="full-section">
+    <div class="section-bg-art">
+      <svg width="400" height="400" style="bottom:-50px;right:-50px;">
+        <polygon points="200,20 380,380 20,380" stroke="#6b1a1a" stroke-width="1" fill="none"/>
+        <polygon points="200,60 340,360 60,360" stroke="#6b1a1a" stroke-width="0.5" fill="none"/>
+      </svg>
+    </div>
+    <div class="section-content">
+      <div class="section-label reveal">Skin Art</div>
+      <h2 class="section-title reveal">Tatuaże</h2>
+      <div class="tattoo-grid">
+        <div class="tattoo-card reveal">
+          <div class="tattoo-corner"></div>
+          <div class="tattoo-card-inner">
+            <div class="machine-icon">🗡️</div>
+            <div class="tattoo-slot-label">Projekt I</div>
+            <div class="tattoo-slot-title">Miejsce na wzór</div>
+          </div>
+        </div>
+        <div class="tattoo-card reveal" style="transition-delay:0.1s">
+          <div class="tattoo-corner"></div>
+          <div class="tattoo-card-inner">
+            <div class="machine-icon">🌀</div>
+            <div class="tattoo-slot-label">Projekt II</div>
+            <div class="tattoo-slot-title">Miejsce na wzór</div>
+          </div>
+        </div>
+        <div class="tattoo-card reveal" style="transition-delay:0.2s">
+          <div class="tattoo-corner"></div>
+          <div class="tattoo-card-inner">
+            <div class="machine-icon">🔱</div>
+            <div class="tattoo-slot-label">Projekt III</div>
+            <div class="tattoo-slot-title">Miejsce na wzór</div>
+          </div>
+        </div>
+        <div class="tattoo-card reveal" style="transition-delay:0.3s">
+          <div class="tattoo-corner"></div>
+          <div class="tattoo-card-inner">
+            <div class="machine-icon">⚡</div>
+            <div class="tattoo-slot-label">Projekt IV</div>
+            <div class="tattoo-slot-title">Miejsce na wzór</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTAL: Tatuaże → Muzyka -->
+  <div class="portal reveal">
+    <div class="portal-inner">
+      <div class="portal-line"></div>
+      <a href="#tatuaze" class="portal-icon" title="Wróć do Tatuaży">🪡<span class="portal-icon-label">Tatuaże</span></a>
+      <div class="portal-line"></div>
+      <span style="font-family:'Special Elite';font-size:0.6rem;letter-spacing:0.3em;color:#4a3f35;text-transform:uppercase;">↕</span>
+      <div class="portal-line"></div>
+      <a href="#muzyka" class="portal-icon" title="Idź do Muzyki">🎵<span class="portal-icon-label">Muzyka</span></a>
+      <div class="portal-line"></div>
+    </div>
+  </div>
+
+  <!-- ===== MUZYKA ===== -->
+  <section id="muzyka" class="full-section">
+    <div class="section-bg-art">
+      <svg width="600" height="400" style="top:0;left:0;">
+        <line x1="0" y1="80" x2="600" y2="80" stroke="#1a1a3a" stroke-width="1"/>
+        <line x1="0" y1="120" x2="600" y2="120" stroke="#1a1a3a" stroke-width="1"/>
+        <line x1="0" y1="160" x2="600" y2="160" stroke="#1a1a3a" stroke-width="1"/>
+        <line x1="0" y1="200" x2="600" y2="200" stroke="#1a1a3a" stroke-width="1"/>
+        <line x1="0" y1="240" x2="600" y2="240" stroke="#1a1a3a" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="section-content">
+      <div class="section-label reveal">Sound</div>
+      <h2 class="section-title reveal">Muzyka</h2>
+
+      <div class="music-container">
+        <div class="vinyl-wrap reveal" id="vinyl">
+          <div class="vinyl">
+            <div class="vinyl-label">MOSES<br/>A&V</div>
+          </div>
+        </div>
+
+        <p class="music-quote reveal">
+          "The song remains the same."<br/>
+          <span style="font-size:0.75rem;letter-spacing:0.2em;opacity:0.5;">— Led Zeppelin</span>
+        </p>
+
+        <div class="player-embed reveal">
+          <iframe
+            src="https://suno.com/embed/playlist/c68e4435-3b05-4814-a41f-443d52f9c41f"
+            height="360"
+            allow="autoplay"
+            title="MosesArt Playlist - Suno"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTAL: Muzyka → Notatnik -->
+  <div class="portal reveal">
+    <div class="portal-inner">
+      <div class="portal-line"></div>
+      <a href="#muzyka" class="portal-icon" title="Wróć do Muzyki">🎵<span class="portal-icon-label">Muzyka</span></a>
+      <div class="portal-line"></div>
+      <a href="#szkice" class="portal-icon" title="Idź do Notatnika">📓<span class="portal-icon-label">Notatnik</span></a>
+      <div class="portal-line"></div>
+    </div>
+  </div>
+
+  <!-- ===== SZKICE / NOTATNIK ===== -->
+  <section id="szkice">
+    <div style="padding: 8rem 2rem 6rem; display:flex; flex-direction:column; align-items:center;">
+      <div class="section-label reveal">Studio</div>
+      <h2 class="section-title reveal">Notatnik</h2>
+
+      <div class="notebook-container reveal">
+        <div class="notebook-tabs">
+          <button class="nb-tab active" data-panel="szkice-tab">✏️ Szkice</button>
+          <button class="nb-tab" data-panel="nuty-tab">🎼 Nuty</button>
+          <button class="nb-tab" data-panel="notatki-tab">📝 Notatki</button>
+        </div>
+
+        <!-- Szkice -->
+        <div class="nb-panel active" id="szkice-tab">
+          <div class="sketch-placeholder">
+            <div class="sketch-box">✏️<span class="sketch-box-label">Szkic I</span></div>
+            <div class="sketch-box">✏️<span class="sketch-box-label">Szkic II</span></div>
+            <div class="sketch-box">✏️<span class="sketch-box-label">Szkic III</span></div>
+            <div class="sketch-box">✏️<span class="sketch-box-label">Szkic IV</span></div>
+            <div class="sketch-box">✏️<span class="sketch-box-label">Szkic V</span></div>
+            <div class="sketch-box">✏️<span class="sketch-box-label">Szkic VI</span></div>
+          </div>
+        </div>
+
+        <!-- Nuty -->
+        <div class="nb-panel" id="nuty-tab">
+          <div class="staff-lines">
+            <div class="staff">
+              <div class="staff-line"></div>
+              <div class="staff-line"></div>
+              <div class="staff-line"></div>
+              <div class="staff-line"></div>
+              <div class="staff-line"></div>
+              <span class="staff-note" style="left:5%;top:2px;">𝄞</span>
+              <span class="staff-note">♩</span>
+              <span class="staff-note">♪</span>
+              <span class="staff-note">♩</span>
+              <span class="staff-note">♫</span>
+            </div>
+            <div class="nb-lines">
+              <div class="nb-line"><span class="nb-line-num">01</span>Miejsce na Twoje nuty, akordy, riffy...</div>
+              <div class="nb-line"><span class="nb-line-num">02</span>A minor → G → F → E...</div>
+              <div class="nb-line"><span class="nb-line-num">03</span>Blues pentatonika — otwarte struny...</div>
+              <div class="nb-line"><span class="nb-line-num">04</span>[ dodaj własne nuty ]</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notatki -->
+        <div class="nb-panel" id="notatki-tab">
+          <div class="nb-lines">
+            <div class="nb-line"><span class="nb-line-num">01</span>Nowe zlecenie na tatuaż — skontaktować się...</div>
+            <div class="nb-line"><span class="nb-line-num">02</span>Obraz na sierpień — motyw chopera i drogi...</div>
+            <div class="nb-line"><span class="nb-line-num">03</span>Playlist do sesji — Zeppelin, Hendrix, Doors...</div>
+            <div class="nb-line"><span class="nb-line-num">04</span>Pomysł na projekt — wzór z płomieniami i kołami...</div>
+            <div class="nb-line"><span class="nb-line-num">05</span>[ miejsce na Twoje notatki ]</div>
+            <div class="nb-line"><span class="nb-line-num">06</span></div>
+            <div class="nb-line"><span class="nb-line-num">07</span></div>
+            <div class="nb-line"><span class="nb-line-num">08</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTAL: powrót na górę -->
+  <div class="portal reveal">
+    <div class="portal-inner">
+      <div class="portal-line"></div>
+      <a href="#hero" class="portal-icon" title="Na górę">☠️<span class="portal-icon-label">Początek</span></a>
+      <div class="portal-line"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">MosesArt & Vibe</div>
+    <div class="footer-sub">Paint · Ink · Sound · Soul · Freedom</div>
+    <div class="footer-links">
+      <a href="#obrazy">Obrazy</a>
+      <a href="#tatuaze">Tatuaże</a>
+      <a href="#muzyka">Muzyka</a>
+      <a href="#szkice">Notatnik</a>
+      <a href="mailto:alpocketcool@gmail.com">✉ Kontakt</a>
+    </div>
+    <div style="margin-top:1.2rem;font-size:0.7rem;letter-spacing:0.15em;">
+      <a href="mailto:alpocketcool@gmail.com" style="color:#c9952a;text-decoration:none;">alpocketcool@gmail.com</a>
+    </div>
+  </footer>
+
+</div><!-- end #site -->
+
+<script>
+  // ===== LOADER =====
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('gone');
+      document.getElementById('site').classList.add('visible');
+    }, 2600);
+  });
+
+  // ===== SCROLL REVEAL =====
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ===== NOTEBOOK TABS =====
+  document.querySelectorAll('.nb-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nb-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nb-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ===== VINYL SPIN on music section =====
+  const vinyl = document.getElementById('vinyl');
+  const musicSection = document.getElementById('muzyka');
+  const vinylObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) vinyl.classList.add('playing');
+      else vinyl.classList.remove('playing');
+    });
+  }, { threshold: 0.3 });
+  if (vinyl && musicSection) vinylObserver.observe(musicSection);
+</script>
+</body>
+</html>
