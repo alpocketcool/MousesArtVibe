@@ -599,20 +599,59 @@
     padding: 0.3rem;
   }
 
-  .player-embed {
-    width: 100%;
-    max-width: 600px;
-    border-radius: 4px;
-    overflow: hidden;
+  .suno-btn {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.2rem 2rem;
     border: 1px solid var(--ash);
-    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    background: var(--smoke);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    width: 100%;
   }
 
-  .player-embed iframe {
-    width: 100%;
-    display: block;
-    border: none;
+  .suno-btn:hover {
+    border-color: var(--gold);
+    background: rgba(201,149,42,0.08);
+    transform: translateX(4px);
   }
+
+  .suno-btn-icon {
+    font-size: 1.4rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .suno-btn-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
+
+  .suno-btn-label {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.8rem;
+    color: var(--bone);
+    letter-spacing: 0.1em;
+  }
+
+  .suno-btn-sub {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+
+  .suno-btn-arrow {
+    color: var(--gold);
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+  }
+
+  .suno-btn:hover .suno-btn-arrow { transform: translateX(4px); }
 
   .music-quote {
     font-family: 'Playfair Display', serif;
@@ -1133,14 +1172,14 @@
           <span style="font-size:0.75rem;letter-spacing:0.2em;opacity:0.5;">— Led Zeppelin</span>
         </p>
 
-        <div class="player-embed reveal">
-          <iframe
-            src="https://suno.com/embed/playlist/c68e4435-3b05-4814-a41f-443d52f9c41f"
-            height="360"
-            allow="autoplay"
-            title="MosesArt Playlist - Suno"
-          ></iframe>
-        </div>
+        <a href="https://suno.com/playlist/c68e4435-3b05-4814-a41f-443d52f9c41f" target="_blank" rel="noopener noreferrer" class="suno-btn reveal">
+          <span class="suno-btn-icon">▶</span>
+          <span class="suno-btn-text">
+            <span class="suno-btn-label">Otwórz playlistę</span>
+            <span class="suno-btn-sub">MosesVibe · Suno</span>
+          </span>
+          <span class="suno-btn-arrow">→</span>
+        </a>
       </div>
     </div>
   </section>
